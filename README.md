@@ -63,15 +63,15 @@ Add to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "nexus": {
-      "command": "npx",
-      "args": ["sonatype-mcp"],
-      "env": {
-        "NEXUS_BASE_URL": "https://nexus.company.local",
-        "NEXUS_USERNAME": "username",
-        "NEXUS_PASSWORD": "password"
-      }
-        }
+    "sonatype-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/brianveltman/Code/Personal/mcp-sonatype/build/index.js",
+        "--nexus-url", "http://localhost:8081",
+        "--nexus-username", "admin",
+        "--nexus-password", "admin123"
+      ]
+    }
   }
 }
 ```

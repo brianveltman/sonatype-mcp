@@ -1,9 +1,33 @@
 #!/usr/bin/env node
 
+// Add early debug and error handling for npx issues
+console.error('=== MCP Server Starting ===');
+console.error('process.argv:', process.argv);
+console.error('process.cwd():', process.cwd());
+console.error('import.meta.url:', import.meta.url);
+
+// Handle missing dependencies gracefully
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception during startup:', error.message);
+  if (error.message.includes('Cannot find package')) {
+    console.error('');
+    console.error('ERROR: Missing dependencies. If running via npx, this may be a temporary issue.');
+    console.error('Please ensure all dependencies are installed correctly.');
+    console.error('Try running: npm install -g @brianveltman/sonatype-mcp');
+    console.error('');
+  }
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection during startup:', reason);
+  process.exit(1);
+});
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { config } from './config/environment.js';
+import { createConfig, displayUsage, type Config } from './config/environment.js';
 import { NexusClient } from './services/nexus-client.js';
 import { createTools, getToolByName } from './tools/index.js';
 import { formatMCPError } from './utils/errors.js';
@@ -13,14 +37,16 @@ import { formatMCPError } from './utils/errors.js';
  */
 class NexusMCPServer {
   private server: Server;
-  private nexusClient: NexusClient;
-  private tools: any[];
+  private nexusClient: NexusClient | null = null;
+  private tools: any[] = [];
+  private config: Config | null = null;
 
   constructor() {
+    // Initialize server with default values, config will be loaded later
     this.server = new Server(
       {
-        name: config.server.name,
-        version: config.server.version,
+        name: 'mcp-sonatype',
+        version: '1.0.12',
       },
       {
         capabilities: {
@@ -28,11 +54,22 @@ class NexusMCPServer {
         },
       }
     );
+  }
 
-    this.nexusClient = new NexusClient(config);
-    this.tools = createTools(this.nexusClient, config);
+  private initializeWithConfig() {
+    try {
+      // Load configuration
+      this.config = createConfig();
+      
+      // Initialize Nexus client
+      this.nexusClient = new NexusClient(this.config);
+      this.tools = createTools(this.nexusClient, this.config);
 
-    this.setupHandlers();
+      this.setupHandlers();
+    } catch (error) {
+      console.error('Failed to initialize configuration:', error);
+      throw error;
+    }
   }
 
   private setupHandlers() {
@@ -79,19 +116,38 @@ class NexusMCPServer {
 
   async start() {
     try {
+      // Check for help flag
+      if (process.argv.includes('--help') || process.argv.includes('-h')) {
+        displayUsage();
+        process.exit(0);
+      }
+
       console.error('Starting Nexus MCP Server...');
-      console.error(`Server: ${config.server.name} v${config.server.version}`);
-      console.error(`Nexus URL: ${config.nexus.baseUrl}`);
-      console.error(`Read-only mode: ${config.server.readOnly}`);
+      
+      // Initialize configuration and components
+      this.initializeWithConfig();
+      
+      if (!this.config || !this.nexusClient) {
+        throw new Error('Failed to initialize server configuration');
+      }
+
+      console.error(`Server: ${this.config.server.name} v${this.config.server.version}`);
+      console.error(`Nexus URL: ${this.config.nexus.baseUrl}`);
+      console.error(`Username: ${this.config.nexus.username}`);
+      console.error(`Read-only mode: ${this.config.server.readOnly}`);
       console.error(`Available tools: ${this.tools.length}`);
 
-      // Test connection to Nexus
+      // Test connection to Nexus (don't fail if connection fails)
       console.error('Testing connection to Nexus...');
-      const isConnected = await this.nexusClient.testConnection();
-      if (!isConnected) {
-        console.warn('Warning: Could not connect to Nexus server');
-      } else {
-        console.error('Successfully connected to Nexus');
+      try {
+        const isConnected = await this.nexusClient.testConnection();
+        if (!isConnected) {
+          console.error('Warning: Could not connect to Nexus server');
+        } else {
+          console.error('Successfully connected to Nexus');
+        }
+      } catch (error) {
+        console.error('Warning: Could not test connection to Nexus:', error);
       }
 
       // Start the server
@@ -101,7 +157,8 @@ class NexusMCPServer {
 
     } catch (error) {
       console.error('Failed to start server:', error);
-      process.exit(1);
+      // Don't exit immediately - let the MCP framework handle this
+      throw error;
     }
   }
 
@@ -127,13 +184,14 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-// Start the server if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const server = new NexusMCPServer();
-  server.start().catch((error) => {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  });
-}
+// Start the server - always start when this module is loaded
+// This ensures the server starts regardless of how it's invoked (node, npx, etc.)
+console.error('Module loaded, starting server...');
+console.error('process.argv:', process.argv);
+console.error('import.meta.url:', import.meta.url);
 
-export default NexusMCPServer;
+const server = new NexusMCPServer();
+server.start().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});

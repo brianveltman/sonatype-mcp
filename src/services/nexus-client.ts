@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { Config } from '../config/environment.js';
 import { createAuthHeaders, validateCredentials } from '../utils/auth.js';
-import { handleNexusError, AuthenticationError, ConfigurationError } from '../utils/errors.js';
+import { handleNexusError, AuthenticationError } from '../utils/errors.js';
 
 /**
  * Request options interface
@@ -22,16 +22,21 @@ export class NexusClient {
   constructor(config: Config) {
     this.config = config;
     
-    // Validate configuration
-    if (!validateCredentials(config)) {
-      throw new ConfigurationError('Invalid Nexus credentials: username and password are required');
-    }
-
     // Create axios instance with default configuration
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    // Add auth headers only if credentials are provided
+    if (validateCredentials(config)) {
+      Object.assign(headers, createAuthHeaders(config));
+    }
+    
     this.client = axios.create({
       baseURL: config.nexus.baseUrl,
       timeout: config.nexus.timeout,
-      headers: createAuthHeaders(config),
+      headers,
       validateStatus: () => true, // We'll handle all status codes manually
       ...(config.nexus.validateSsl === false && {
         httpsAgent: new (require('https').Agent)({
@@ -66,6 +71,22 @@ export class NexusClient {
   }
 
   /**
+   * Check if authentication credentials are available
+   */
+  private hasCredentials(): boolean {
+    return validateCredentials(this.config);
+  }
+
+  /**
+   * Ensure credentials are available before making authenticated requests
+   */
+  private ensureCredentials(): void {
+    if (!this.hasCredentials()) {
+      throw new AuthenticationError('Nexus credentials not configured. Please set NEXUS_USERNAME and NEXUS_PASSWORD environment variables.');
+    }
+  }
+
+  /**
    * Test the connection to Nexus
    */
   async testConnection(): Promise<boolean> {
@@ -83,12 +104,21 @@ export class NexusClient {
    */
   async get<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     try {
+      // Check if credentials are needed for this endpoint
+      if (!endpoint.includes('/status/check') && !endpoint.includes('/status/writable')) {
+        this.ensureCredentials();
+      }
+      
+      const headers = { ...options.headers };
+      
+      // Add auth headers only if credentials are available
+      if (this.hasCredentials()) {
+        Object.assign(headers, createAuthHeaders(this.config));
+      }
+      
       const response = await this.client.get<T>(endpoint, {
         ...options,
-        headers: {
-          ...createAuthHeaders(this.config),
-          ...options.headers
-        }
+        headers
       });
 
       if (response.status >= 400) {
@@ -108,6 +138,9 @@ export class NexusClient {
     if (this.config.server.readOnly) {
       throw new AuthenticationError('Write operations are disabled in read-only mode');
     }
+
+    // POST requests always require credentials
+    this.ensureCredentials();
 
     try {
       const response = await this.client.post<T>(endpoint, data, {
@@ -136,6 +169,9 @@ export class NexusClient {
       throw new AuthenticationError('Write operations are disabled in read-only mode');
     }
 
+    // PUT requests always require credentials
+    this.ensureCredentials();
+
     try {
       const response = await this.client.put<T>(endpoint, data, {
         ...options,
@@ -162,6 +198,9 @@ export class NexusClient {
     if (this.config.server.readOnly) {
       throw new AuthenticationError('Write operations are disabled in read-only mode');
     }
+
+    // DELETE requests always require credentials
+    this.ensureCredentials();
 
     try {
       const response = await this.client.delete<T>(endpoint, {
