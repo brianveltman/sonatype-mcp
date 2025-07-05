@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Model Context Protocol server for Sonatype Nexus Repository Manager",
   "type": "module",
+  "packageManager": "yarn@4.9.2",
   "main": "dist/index.js",
-  "bin": {
-    "sonatype-mcp": "dist/index.js"
-  },
+  "bin": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -14,8 +13,8 @@
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "prepublishOnly": "npm run build",
-    "prepack": "npm run build"
+    "prepublishOnly": "yarn build",
+    "prepack": "yarn build"
   },
   "keywords": [
     "mcp",

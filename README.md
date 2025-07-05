@@ -112,20 +112,20 @@ docker run --rm -i \
 ```bash
 git clone https://github.com/brianveltman/sonatype-mcp.git
 cd sonatype-mcp
-npm install
-npm run build
+yarn install
+yarn build
 ```
 
 ### Running in Development
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 ### Running Tests
 
 ```bash
-npm test
+yarn test
 ```
 
 ## Security
