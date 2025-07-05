@@ -1,0 +1,39 @@
+# Source files
+src/
+tsconfig.json
+jest.config.js
+
+# Development files
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Documentation drafts
+ADR-*.md
+
+# Development dependencies artifacts
+node_modules/
+coverage/
+
+# Build artifacts that shouldn't be published
+Dockerfile
+docker-compose.yml
+*.tgz
