@@ -8,7 +8,6 @@ A Model Context Protocol (MCP) server for Sonatype Nexus Repository Manager that
 - **Component Operations**: Search, retrieve, and manage components
 - **System Administration**: Monitor system status, blob stores, and metrics
 - **Security**: HTTP Basic Authentication with read-only mode support
-- **Docker Support**: Containerized deployment
 
 ## Installation
 
