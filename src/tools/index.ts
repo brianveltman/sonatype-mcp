@@ -10,6 +10,8 @@ import { isToolEnabled } from '../utils/validation.js';
 import { createListRepositoriesTool } from './repository/list-repositories.js';
 import { createGetRepositoryTool } from './repository/get-repository.js';
 import { createDeleteRepositoryTool } from './repository/delete-repository.js';
+import { createCreateRepositoryTool } from './repository/create-repository.js';
+import { createUpdateRepositoryTool } from './repository/update-repository.js';
 
 // Component tools
 import { createSearchComponentsTool } from './components/search-components.js';
@@ -36,6 +38,8 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
     createListRepositoriesTool(repositoryService),
     createGetRepositoryTool(repositoryService),
     createDeleteRepositoryTool(repositoryService),
+    createCreateRepositoryTool(repositoryService),
+    createUpdateRepositoryTool(repositoryService),
 
     // Component management tools
     createSearchComponentsTool(componentService),

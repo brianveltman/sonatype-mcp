@@ -23,7 +23,7 @@ export interface ListRepositoriesParams {
  * Repository service for managing Nexus repositories
  */
 export class RepositoryService {
-  constructor(private nexusClient: NexusClient) {}
+  constructor(public readonly nexusClient: NexusClient) {}
 
   /**
    * List all repositories

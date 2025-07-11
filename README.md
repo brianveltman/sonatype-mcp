@@ -52,6 +52,8 @@ Add to your `claude_desktop_config.json`:
 ### Repository Management
 - `nexus_list_repositories` - List all repositories with filtering
 - `nexus_get_repository` - Get repository details
+- `nexus_create_repository` - Create proxy, hosted, or group repositories (write mode)
+- `nexus_update_repository` - Update repository configuration (write mode)
 - `nexus_delete_repository` - Delete repositories (write mode)
 
 ### Component Management
@@ -103,6 +105,26 @@ yarn test
 3. Make your changes
 4. Add tests if applicable
 5. Submit a pull request
+
+### Example how to use the source with Claude
+```json
+{
+  "mcpServers": {
+    "sonatype-mcp": {
+      "command": "node",
+      "args": [
+        "/path-to/mcp-sonatype/build/index.js",
+        "--nexus-url",
+        "http://localhost:8081",
+        "--nexus-username",
+        "your-username",
+        "--nexus-password",
+        "your-password"
+      ]
+    }
+  }
+}
+```
 
 ## License
 
