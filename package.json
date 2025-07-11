@@ -1,6 +1,6 @@
 {
   "name": "@brianveltman/sonatype-mcp",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Model Context Protocol server for Sonatype Nexus Repository Manager",
   "type": "module",
   "packageManager": "yarn@4.9.2",
