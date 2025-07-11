@@ -24,36 +24,6 @@ A Model Context Protocol (MCP) server for Sonatype Nexus Repository Manager that
 npm install -g @brianveltman/sonatype-mcp
 ```
 
-### Using Docker
-
-```bash
-docker pull ghcr.io/brianveltman/sonatype-mcp:latest
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NEXUS_BASE_URL` | Nexus server URL | `http://localhost:8081` |
-| `NEXUS_USERNAME` | Nexus username | *required* |
-| `NEXUS_PASSWORD` | Nexus password | *required* |
-| `NEXUS_TIMEOUT` | Request timeout (ms) | `30000` |
-| `NEXUS_VALIDATE_SSL` | Validate SSL certificates | `true` |
-| `MCP_SERVER_NAME` | MCP server name | `nexus-mcp-server` |
-| `MCP_SERVER_VERSION` | MCP server version | `1.0.0` |
-| `READ_ONLY_MODE` | Enable read-only mode | `false` |
-| `ENABLED_TOOLS` | Comma-separated tool names | *all tools* |
-
-### Configuration File
-
-Copy `.env.example` to `.env` and configure your settings:
-
-```bash
-cp .env.example .env
-```
-
 ## Usage
 
 ### Claude Desktop Integration
@@ -64,26 +34,17 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "sonatype-mcp": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/Users/brianveltman/Code/Personal/mcp-sonatype/build/index.js",
+        "-y",
+        "@brianveltman/sonatype-mcp",
         "--nexus-url", "http://localhost:8081",
-        "--nexus-username", "admin",
-        "--nexus-password", "admin123"
+        "--nexus-username", "your-username",
+        "--nexus-password", "your-password"
       ]
     }
   }
 }
-```
-
-### Docker Usage
-
-```bash
-docker run --rm -i \
-  -e NEXUS_BASE_URL=https://nexus.company.com \
-  -e NEXUS_USERNAME=api-user \
-  -e NEXUS_PASSWORD=api-token \
-  ghcr.io/brianveltman/sonatype-mcp:latest
 ```
 
 ## Available Tools
