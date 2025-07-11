@@ -8,7 +8,7 @@ const envSchema = z.object({
   NEXUS_TIMEOUT: z.string().regex(/^\d+$/).transform(Number).default('30000'),
   NEXUS_VALIDATE_SSL: z.string().transform(val => val !== 'false').default('true'),
   MCP_SERVER_NAME: z.string().default('sonatype-mcp'),
-  MCP_SERVER_VERSION: z.string().default('1.0.13'),
+  MCP_SERVER_VERSION: z.string().default('1.1.0'),
   READ_ONLY_MODE: z.string().transform(val => val === 'true').default('false'),
   ENABLED_TOOLS: z.string().optional().transform(val => val ? val.split(',').map(s => s.trim()) : [])
 });

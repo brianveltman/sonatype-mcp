@@ -46,7 +46,7 @@ class NexusMCPServer {
     this.server = new Server(
       {
         name: 'mcp-sonatype',
-        version: '1.0.13',
+        version: '1.1.0',
       },
       {
         capabilities: {
