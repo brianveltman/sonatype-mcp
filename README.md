@@ -46,6 +46,32 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
+### Visual Studio Code Integration
+
+Add to your `mcp.json`:
+
+```json
+{
+	"servers": {
+		"sonatype-mcp": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@brianveltman/sonatype-mcp",
+				"--nexus-url",
+				"http://localhost:8081",
+				"--nexus-username",
+				"your-username",
+				"--nexus-password",
+				"your-password"
+			],
+			"type": "stdio"
+		}
+	},
+	"inputs": []
+}
+```
+
 ## Available Tools
 
 ### Repository Management
@@ -68,8 +94,8 @@ Add to your `claude_desktop_config.json`:
 ### System Administration
 - `nexus_get_system_status` - Get system health status
 - `nexus_list_blob_stores` - List blob store configurations
-- `nexus_get_metrics` - Get system metrics
 - `nexus_list_tasks` - List scheduled tasks
+- `nexus_get_usage_metrics` - Get usage metrics including total components and daily request counts (requires nexus:metrics:read privilege)
 
 ## Development
 
