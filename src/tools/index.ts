@@ -29,6 +29,7 @@ import { createGetSystemStatusTool } from './admin/get-system-status.js';
 import { createListBlobStoresTool } from './admin/list-blob-stores.js';
 import { createListTasksTool } from './admin/list-tasks.js';
 import { createGetUsageMetricsTool } from './admin/get-usage-metrics.js';
+import { createGenerateSupportZipTool } from './admin/generate-support-zip.js';
 
 /**
  * Create all available MCP tools
@@ -61,7 +62,8 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
     createGetSystemStatusTool(adminService),
     createListBlobStoresTool(adminService),
     createListTasksTool(adminService),
-    createGetUsageMetricsTool(adminService)
+    createGetUsageMetricsTool(adminService),
+    createGenerateSupportZipTool(adminService)
   ];
 
   // Filter tools based on enabled tools configuration

@@ -10,6 +10,7 @@ export interface RequestOptions {
   headers?: Record<string, string>;
   timeout?: number;
   params?: Record<string, any>;
+  responseType?: 'json' | 'text' | 'blob' | 'arraybuffer' | 'document' | 'stream';
 }
 
 /**

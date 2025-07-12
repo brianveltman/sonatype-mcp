@@ -70,6 +70,21 @@ export interface ServiceMetricsData {
 }
 
 /**
+ * Support zip configuration interface
+ */
+export interface SupportZipConfig {
+  systemInformation?: boolean;
+  threadDump?: boolean;
+  metrics?: boolean;
+  configuration?: boolean;
+  security?: boolean;
+  logFiles?: boolean;
+  taskLogFiles?: boolean;
+  auditLogFiles?: boolean;
+  jmx?: boolean;
+}
+
+/**
  * Administrative service for Nexus system operations
  */
 export class AdminService {
@@ -194,5 +209,36 @@ export class AdminService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Generate and download support zip
+   * Contains diagnostic information for troubleshooting
+   */
+  async generateSupportZip(config: SupportZipConfig = {}): Promise<Buffer> {
+    // Set default configuration if none provided
+    const defaultConfig: SupportZipConfig = {
+      systemInformation: true,
+      threadDump: true,
+      metrics: true,
+      configuration: true,
+      security: false, // Default to false for security reasons
+      logFiles: true,
+      taskLogFiles: false,
+      auditLogFiles: false,
+      jmx: false
+    };
+
+    const finalConfig = { ...defaultConfig, ...config };
+
+    const response = await this.nexusClient.post('/service/rest/v1/support/supportzip', finalConfig, {
+      responseType: 'arraybuffer',
+      headers: {
+        'Accept': 'application/octet-stream',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return Buffer.from(response as ArrayBuffer);
   }
 }
