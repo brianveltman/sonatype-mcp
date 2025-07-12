@@ -13,7 +13,7 @@ const envSchema = z.object({
   FIREWALL_TIMEOUT: z.string().regex(/^\d+$/).transform(Number).default('30000'),
   FIREWALL_VALIDATE_SSL: z.string().transform(val => val !== 'false').default('true'),
   MCP_SERVER_NAME: z.string().default('sonatype-mcp'),
-  MCP_SERVER_VERSION: z.string().default('1.3.0'),
+  MCP_SERVER_VERSION: z.string().default('1.4.0'),
   READ_ONLY_MODE: z.string().transform(val => val === 'true').default('false'),
   ENABLED_TOOLS: z.string().optional().transform(val => val ? val.split(',').map(s => s.trim()) : [])
 });
