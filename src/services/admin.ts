@@ -32,32 +32,6 @@ export interface BlobStore {
   };
 }
 
-/**
- * System metrics interface
- */
-export interface SystemMetrics {
-  memory: {
-    heap: {
-      used: number;
-      max: number;
-      committed: number;
-    };
-    nonHeap: {
-      used: number;
-      max: number;
-      committed: number;
-    };
-  };
-  threads: {
-    count: number;
-    peak: number;
-    daemon: number;
-  };
-  fileDescriptors: {
-    open: number;
-    max: number;
-  };
-}
 
 /**
  * Task information interface
@@ -75,6 +49,24 @@ export interface Task {
   stoppable: boolean;
   typeId: string;
   typeName: string;
+}
+
+/**
+ * Service metrics data interface
+ */
+export interface ServiceMetricsData {
+  gauges: {
+    'nexus.analytics.component_total_count'?: {
+      value: number;
+    };
+    'nexus.analytics.content_request_count'?: {
+      value: {
+        day: number;
+      };
+    };
+    [key: string]: any;
+  };
+  [key: string]: any;
 }
 
 /**
@@ -115,13 +107,6 @@ export class AdminService {
     return blobStore;
   }
 
-  /**
-   * Get system metrics
-   */
-  async getMetrics(): Promise<SystemMetrics> {
-    const metrics = await this.nexusClient.get<SystemMetrics>('/service/rest/v1/metrics');
-    return metrics;
-  }
 
   /**
    * List scheduled tasks
@@ -185,5 +170,29 @@ export class AdminService {
    */
   async updateSystemConfiguration(config: any): Promise<void> {
     await this.nexusClient.put('/service/rest/v1/system-configuration', config);
+  }
+
+  /**
+   * Get service metrics data
+   * Requires nexus:metrics:read privilege
+   */
+  async getServiceMetricsData(): Promise<ServiceMetricsData> {
+    try {
+      // Try the documented endpoint first
+      const metricsData = await this.nexusClient.get<ServiceMetricsData>('/service/metrics/data');
+      return metricsData;
+    } catch (error: any) {
+      // If the first endpoint fails with 404, try the alternative REST API path
+      if (error.response?.status === 404) {
+        try {
+          const metricsData = await this.nexusClient.get<ServiceMetricsData>('/service/rest/v1/metrics/data');
+          return metricsData;
+        } catch (fallbackError) {
+          // If both fail, throw the original error
+          throw error;
+        }
+      }
+      throw error;
+    }
   }
 }

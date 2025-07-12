@@ -27,8 +27,8 @@ import { createUploadAssetTool } from './assets/upload-asset.js';
 // Admin tools
 import { createGetSystemStatusTool } from './admin/get-system-status.js';
 import { createListBlobStoresTool } from './admin/list-blob-stores.js';
-import { createGetMetricsTool } from './admin/get-metrics.js';
 import { createListTasksTool } from './admin/list-tasks.js';
+import { createGetUsageMetricsTool } from './admin/get-usage-metrics.js';
 
 /**
  * Create all available MCP tools
@@ -60,8 +60,8 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
     // Administrative tools
     createGetSystemStatusTool(adminService),
     createListBlobStoresTool(adminService),
-    createGetMetricsTool(adminService),
-    createListTasksTool(adminService)
+    createListTasksTool(adminService),
+    createGetUsageMetricsTool(adminService)
   ];
 
   // Filter tools based on enabled tools configuration
