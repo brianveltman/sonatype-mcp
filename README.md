@@ -96,6 +96,154 @@ Add to your `mcp.json`:
 - `nexus_list_blob_stores` - List blob store configurations
 - `nexus_list_tasks` - List scheduled tasks
 - `nexus_get_usage_metrics` - Get usage metrics including total components and daily request counts (requires nexus:metrics:read privilege)
+- `nexus_generate_support_zip` - Generate and optionally save a support zip file containing diagnostic information for troubleshooting
+
+## Usage Examples
+
+### Common Prompts for AI Assistants
+
+Once you have the MCP server configured, you can use natural language prompts with your AI assistant:
+
+#### Repository Management
+- *"List all Maven repositories"*
+- *"Show me details about the npm-public repository"*
+- *"Create a new hosted Maven repository called 'internal-releases'"*
+- *"What repositories do we have for Docker images?"*
+
+#### Component Search and Analysis
+- *"Search for all versions of the Spring Boot starter components"*
+- *"Find all components in the maven-central repository that contain 'jackson'"*
+- *"Show me all versions of com.fasterxml.jackson.core:jackson-core"*
+- *"What's the latest version of lodash in our npm repository?"*
+
+#### System Monitoring
+- *"Check the system health status"*
+- *"Show me the current usage metrics for our Nexus instance"*
+- *"List all blob stores and their sizes"*
+- *"What scheduled tasks are currently running?"*
+- *"Generate a support zip file for troubleshooting"*
+- *"Create a support zip with system info and logs, save it to the raw repository"*
+
+#### Security and Compliance
+- *"Search for components with known vulnerabilities"*
+- *"Find all snapshot versions in our release repositories"*
+- *"Show me components uploaded in the last 24 hours"*
+
+### Advanced Use Cases
+
+#### Dependency Analysis
+```
+"Search for all components that depend on log4j and show me their versions. 
+Then check if any of them are using vulnerable versions."
+```
+
+#### Repository Cleanup
+```
+"Find all snapshot artifacts older than 30 days in the maven-snapshots repository 
+and prepare a list for cleanup."
+```
+
+#### Release Management
+```
+"Check if version 2.1.0 of our internal library 'com.company:core-utils' 
+exists in the releases repository, and if not, help me upload it."
+```
+
+#### Storage Management
+```
+"Show me which blob stores are consuming the most space and identify 
+the largest components in each repository."
+```
+
+#### Troubleshooting and Support
+```
+"Generate a comprehensive support zip file including system information, 
+thread dumps, metrics, and log files, but exclude security information 
+for sharing with external support."
+```
+
+### Interactive Workflows
+
+The MCP server enables complex, multi-step workflows:
+
+1. **Component Discovery**: Start by searching for components
+2. **Detailed Analysis**: Get specific component details
+3. **Repository Operations**: Create, update, or manage repositories
+4. **Upload Management**: Upload new versions or assets
+5. **Monitoring**: Check system health and usage metrics
+
+### Example Conversation Flow
+
+```
+You: "What Maven repositories do we have?"
+AI: [Lists repositories using nexus_list_repositories]
+
+You: "Show me the largest components in maven-releases"
+AI: [Searches components and shows results with sizes]
+
+You: "Upload version 1.2.0 of com.example:my-app to maven-releases"
+AI: [Uses nexus_upload_component to upload the specified version]
+
+You: "Check if the upload was successful"
+AI: [Searches for the component to verify upload]
+```
+
+### Troubleshooting Examples
+
+#### Permission Issues
+If you encounter permission errors:
+- *"Check the system status to see if I have the required permissions"*
+- *"List the repositories I have access to"*
+- *"Show me what admin tasks are available"*
+
+#### Component Not Found
+When searching doesn't return expected results:
+- *"Search for 'spring' in all repositories, not just maven-central"*
+- *"Check if the component name has special characters or different casing"*
+- *"List all components in the repository to see what's actually there"*
+
+#### Upload Issues
+For upload problems:
+- *"Verify the repository format supports the type of component I'm trying to upload"*
+- *"Check if the repository is in read-only mode"*
+- *"Show me the repository configuration for upload settings"*
+
+### Best Practices
+
+#### Efficient Searching
+- Use specific search terms to reduce result sets
+- Filter by repository when you know the target location
+- Combine multiple search criteria for precise results
+
+#### Repository Management
+- Always check repository details before making changes
+- Use descriptive names for new repositories
+- Verify blob store configuration before creating repositories
+
+#### Monitoring and Maintenance
+- Regularly check system health status
+- Monitor usage metrics to understand growth patterns
+- Review scheduled tasks for maintenance operations
+
+### Integration Examples
+
+#### CI/CD Pipeline Integration
+```
+"After our build completes, check if the new artifact version already exists 
+in the releases repository. If not, upload it and verify the upload succeeded."
+```
+
+#### Dependency Auditing
+```
+"Generate a report of all third-party dependencies in our maven-central proxy, 
+grouped by organization, and highlight any with recent security advisories."
+```
+
+#### Storage Optimization
+```
+"Identify duplicate artifacts across repositories and suggest consolidation 
+opportunities to optimize storage usage."
+```
 
 ## Development
 
