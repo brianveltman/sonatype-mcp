@@ -18,6 +18,11 @@ import { createSearchComponentsTool } from './components/search-components.js';
 import { createGetComponentTool } from './components/get-component.js';
 import { createDeleteComponentTool } from './components/delete-component.js';
 import { createGetComponentVersionsTool } from './components/get-component-versions.js';
+import { createUploadComponentTool } from './components/upload-component.js';
+import { createUploadMultipleAssetsTool } from './components/upload-multiple-assets.js';
+
+// Asset tools
+import { createUploadAssetTool } from './assets/upload-asset.js';
 
 // Admin tools
 import { createGetSystemStatusTool } from './admin/get-system-status.js';
@@ -46,6 +51,11 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
     createGetComponentTool(componentService),
     createDeleteComponentTool(componentService),
     createGetComponentVersionsTool(componentService),
+    createUploadComponentTool(componentService),
+    createUploadMultipleAssetsTool(componentService),
+    
+    // Asset management tools
+    createUploadAssetTool(componentService),
 
     // Administrative tools
     createGetSystemStatusTool(adminService),

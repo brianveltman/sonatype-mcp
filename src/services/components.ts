@@ -60,7 +60,7 @@ export interface ComponentSearchResponse {
  * Component service for managing Nexus components
  */
 export class ComponentService {
-  constructor(private nexusClient: NexusClient) {}
+  constructor(public readonly nexusClient: NexusClient) {}
 
   /**
    * Search components
@@ -96,12 +96,12 @@ export class ComponentService {
   /**
    * Upload component to repository
    */
-  async uploadComponent(componentData: any): Promise<Component> {
+  async uploadComponent(repository: string, formData: any): Promise<Component> {
     const component = await this.nexusClient.post<Component>(
-      `/service/rest/v1/components`,
-      componentData,
+      `/service/rest/v1/components?repository=${encodeURIComponent(repository)}`,
+      formData,
       {
-        headers: {
+        headers: formData.getHeaders ? formData.getHeaders() : {
           'Content-Type': 'multipart/form-data'
         }
       }

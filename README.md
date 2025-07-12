@@ -60,6 +60,10 @@ Add to your `claude_desktop_config.json`:
 - `nexus_get_component` - Get component details
 - `nexus_delete_component` - Delete components (write mode)
 - `nexus_get_component_versions` - List all versions of a component
+- `nexus_upload_component` - Upload components with assets to repositories (write mode)
+
+### Asset Management
+- `nexus_upload_asset` - Upload individual assets to raw repositories (write mode)
 
 ### System Administration
 - `nexus_get_system_status` - Get system health status
