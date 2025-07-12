@@ -1,8 +1,10 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { NexusClient } from '../services/nexus-client.js';
+import { FirewallClient } from '../services/firewall-client.js';
 import { RepositoryService } from '../services/repositories.js';
 import { ComponentService } from '../services/components.js';
 import { AdminService } from '../services/admin.js';
+import { QuarantineService } from '../services/quarantine.js';
 import { Config } from '../config/environment.js';
 import { isToolEnabled } from '../utils/validation.js';
 
@@ -31,6 +33,10 @@ import { createListTasksTool } from './admin/list-tasks.js';
 import { createGetUsageMetricsTool } from './admin/get-usage-metrics.js';
 import { createGenerateSupportZipTool } from './admin/generate-support-zip.js';
 
+// Firewall tools
+import { createGetQuarantinedComponentsTool } from './firewall/get-quarantined-components.js';
+import { createReleaseFromQuarantineTool } from './firewall/release-from-quarantine.js';
+
 /**
  * Create all available MCP tools
  */
@@ -38,6 +44,17 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
   const repositoryService = new RepositoryService(nexusClient);
   const componentService = new ComponentService(nexusClient);
   const adminService = new AdminService(nexusClient);
+
+  // Initialize Firewall services if credentials are available
+  let quarantineService: QuarantineService | null = null;
+  if (config.firewall) {
+    try {
+      const firewallClient = new FirewallClient(config);
+      quarantineService = new QuarantineService(firewallClient);
+    } catch (error) {
+      console.warn('Firewall client initialization failed:', (error as Error).message);
+    }
+  }
 
   const allTools: Tool[] = [
     // Repository management tools
@@ -65,6 +82,14 @@ export function createTools(nexusClient: NexusClient, config: Config): Tool[] {
     createGetUsageMetricsTool(adminService),
     createGenerateSupportZipTool(adminService)
   ];
+
+  // Add Firewall tools if quarantine service is available
+  if (quarantineService) {
+    allTools.push(
+      createGetQuarantinedComponentsTool(quarantineService),
+      createReleaseFromQuarantineTool(quarantineService)
+    );
+  }
 
   // Filter tools based on enabled tools configuration
   const enabledTools = config.features.enabledTools;

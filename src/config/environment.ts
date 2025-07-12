@@ -7,6 +7,11 @@ const envSchema = z.object({
   NEXUS_PASSWORD: z.string().default(''),
   NEXUS_TIMEOUT: z.string().regex(/^\d+$/).transform(Number).default('30000'),
   NEXUS_VALIDATE_SSL: z.string().transform(val => val !== 'false').default('true'),
+  FIREWALL_BASE_URL: z.string().url().default('http://localhost:8070'),
+  FIREWALL_USERNAME: z.string().default(''),
+  FIREWALL_PASSWORD: z.string().default(''),
+  FIREWALL_TIMEOUT: z.string().regex(/^\d+$/).transform(Number).default('30000'),
+  FIREWALL_VALIDATE_SSL: z.string().transform(val => val !== 'false').default('true'),
   MCP_SERVER_NAME: z.string().default('sonatype-mcp'),
   MCP_SERVER_VERSION: z.string().default('1.3.0'),
   READ_ONLY_MODE: z.string().transform(val => val === 'true').default('false'),
@@ -26,7 +31,7 @@ function parseArgs(): Record<string, any> {
       const nextArg = argv[i + 1];
       
       // Handle boolean flags
-      if (key === 'debug' || key === 'read-only' || key === 'nexus-validate-ssl') {
+      if (key === 'debug' || key === 'read-only' || key === 'nexus-validate-ssl' || key === 'firewall-validate-ssl') {
         args[key] = true;
         continue;
       }
@@ -55,6 +60,11 @@ export function loadEnvironment() {
       password: cmdArgs['nexus-password'] || env.NEXUS_PASSWORD,
       timeout: cmdArgs['nexus-timeout'] || env.NEXUS_TIMEOUT,
       validateSsl: cmdArgs['nexus-validate-ssl'] !== false && env.NEXUS_VALIDATE_SSL,
+      firewallBaseUrl: cmdArgs['firewall-url'] || env.FIREWALL_BASE_URL,
+      firewallUsername: cmdArgs['firewall-username'] || env.FIREWALL_USERNAME,
+      firewallPassword: cmdArgs['firewall-password'] || env.FIREWALL_PASSWORD,
+      firewallTimeout: cmdArgs['firewall-timeout'] || env.FIREWALL_TIMEOUT,
+      firewallValidateSsl: cmdArgs['firewall-validate-ssl'] !== false && env.FIREWALL_VALIDATE_SSL,
       serverName: env.MCP_SERVER_NAME,
       serverVersion: env.MCP_SERVER_VERSION,
       readOnly: cmdArgs['read-only'] || env.READ_ONLY_MODE,
@@ -87,6 +97,13 @@ export interface Config {
     timeout: number;
     validateSsl: boolean;
   };
+  firewall?: {
+    baseUrl: string;
+    username: string;
+    password: string;
+    timeout: number;
+    validateSsl: boolean;
+  };
   server: {
     name: string;
     version: string;
@@ -101,7 +118,7 @@ export interface Config {
 export function createConfig(): Config {
   const config = loadEnvironment();
   
-  return {
+  const result: Config = {
     nexus: {
       baseUrl: config.baseUrl,
       username: config.username,
@@ -118,6 +135,19 @@ export function createConfig(): Config {
       enabledTools: config.enabledTools
     }
   };
+
+  // Add Firewall configuration if credentials are provided
+  if (config.firewallUsername && config.firewallPassword) {
+    result.firewall = {
+      baseUrl: config.firewallBaseUrl,
+      username: config.firewallUsername,
+      password: config.firewallPassword,
+      timeout: config.firewallTimeout,
+      validateSsl: config.firewallValidateSsl
+    };
+  }
+
+  return result;
 }
 
 // Helper function to display usage information
@@ -127,12 +157,21 @@ Sonatype Nexus MCP Server
 
 Usage: node build/index.js [options]
 
-Options:
+Nexus Repository Manager Options:
   --nexus-url <url>          Nexus base URL (default: http://localhost:8081)
   --nexus-username <user>    Nexus username (required)
   --nexus-password <pass>    Nexus password (required)
   --nexus-timeout <ms>       Request timeout in milliseconds (default: 30000)
   --nexus-validate-ssl       Validate SSL certificates (default: true)
+
+Sonatype Firewall Options (optional):
+  --firewall-url <url>       Firewall base URL (default: http://localhost:8070)
+  --firewall-username <user> Firewall username (optional)
+  --firewall-password <pass> Firewall password (optional)
+  --firewall-timeout <ms>    Request timeout in milliseconds (default: 30000)
+  --firewall-validate-ssl    Validate SSL certificates (default: true)
+
+General Options:
   --read-only               Enable read-only mode (default: false)
   --enabled-tools <tools>    Comma-separated list of enabled tools
   --debug                   Enable debug mode
@@ -141,6 +180,7 @@ Options:
 Examples:
   node build/index.js --nexus-username admin --nexus-password admin123
   node build/index.js --nexus-url https://nexus.example.com --nexus-username myuser --nexus-password mypass
+  node build/index.js --nexus-username admin --nexus-password admin123 --firewall-username admin --firewall-password admin123
   node build/index.js --nexus-username admin --nexus-password admin123 --read-only
 `);
 }

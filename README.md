@@ -46,6 +46,30 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
+#### With Firewall Quarantine Support
+
+To enable Firewall quarantine tools, add Firewall credentials:
+
+```json
+{
+  "mcpServers": {
+    "sonatype-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@brianveltman/sonatype-mcp",
+        "--nexus-url", "http://localhost:8081",
+        "--nexus-username", "your-username",
+        "--nexus-password", "your-password",
+        "--firewall-url", "http://localhost:8070",
+        "--firewall-username", "firewall-user",
+        "--firewall-password", "firewall-password"
+      ]
+    }
+  }
+}
+```
+
 ### Visual Studio Code Integration
 
 Add to your `mcp.json`:
@@ -64,6 +88,36 @@ Add to your `mcp.json`:
 				"your-username",
 				"--nexus-password",
 				"your-password"
+			],
+			"type": "stdio"
+		}
+	},
+	"inputs": []
+}
+```
+
+#### With Firewall Support
+
+```json
+{
+	"servers": {
+		"sonatype-mcp": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@brianveltman/sonatype-mcp",
+				"--nexus-url",
+				"http://localhost:8081",
+				"--nexus-username",
+				"your-username",
+				"--nexus-password",
+				"your-password",
+				"--firewall-url",
+				"http://localhost:8070",
+				"--firewall-username",
+				"firewall-user",
+				"--firewall-password",
+				"firewall-password"
 			],
 			"type": "stdio"
 		}
@@ -98,6 +152,10 @@ Add to your `mcp.json`:
 - `nexus_get_usage_metrics` - Get usage metrics including total components and daily request counts (requires nexus:metrics:read privilege)
 - `nexus_generate_support_zip` - Generate and optionally save a support zip file containing diagnostic information for troubleshooting
 
+### Firewall Quarantine (Optional)
+- `firewall_get_quarantined_components` - Retrieve components quarantined by Sonatype Firewall policies (requires Firewall credentials)
+- `firewall_release_from_quarantine` - Release components from Firewall quarantine by waiving policy violations (write mode, requires Firewall credentials)
+
 ## Usage Examples
 
 ### Common Prompts for AI Assistants
@@ -128,6 +186,9 @@ Once you have the MCP server configured, you can use natural language prompts wi
 - *"Search for components with known vulnerabilities"*
 - *"Find all snapshot versions in our release repositories"*
 - *"Show me components uploaded in the last 24 hours"*
+- *"Show me all components quarantined by Firewall policies"*
+- *"Check if any components containing 'log4j' are quarantined"*
+- *"Release quarantine ID 'abc123' with a comment explaining the business justification"*
 
 ### Advanced Use Cases
 
@@ -160,6 +221,13 @@ the largest components in each repository."
 "Generate a comprehensive support zip file including system information, 
 thread dumps, metrics, and log files, but exclude security information 
 for sharing with external support."
+```
+
+#### Firewall Quarantine Management
+```
+"Check all repositories for quarantined components, identify which policy 
+violations are causing the most quarantines, and provide a summary report 
+with recommendations for policy adjustments."
 ```
 
 ### Interactive Workflows
