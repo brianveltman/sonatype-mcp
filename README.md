@@ -2,6 +2,8 @@
 
 A Model Context Protocol (MCP) server for Sonatype Nexus Repository Manager that enables AI assistants to interact with Nexus repositories through a standardized interface.
 
+![NPM Downloads](https://img.shields.io/npm/d18m/%40brianveltman%2Fsonatype-mcp)
+
 ## Features
 
 - **Repository Management**: List, view, and manage repositories
